@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Mappa Quartieri Milano</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    #map { height: 100vh; }
+    .popup-table td { padding: 4px 8px; border-bottom: 1px solid #ccc; }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <script>
+
+    // 1) CREA LA MAPPA CENTRATA SU MILANO
+    const map = L.map('map').setView([45.4642, 9.19], 12);
+
+    // 2) AGGIUNGI SFONDO OSM
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    // 3) CARICA IL TUO FILE GEOJSON
+    fetch("quartieri_milano.geojson")   // <<<<<<<< METTI QUI IL TUO FILE
+      .then(res => res.json())
+      .then(data => {
+        L.geoJSON(data, {
+
+          style: () => ({
+            color: "#3f2cf2",
+            weight: 2,
+            fillOpacity: 0.1
+          }),
+
+          onEachFeature: (feature, layer) => {
+            const props = feature.properties;
+
+            // popup generato automaticamente dal tuo GeoJSON
+            let popupContent = "<table class='popup-table'>";
+            for (let key in props) {
+              popupContent += `<tr><td><b>${key}</b></td><td>${props[key]}</td></tr>`;
+            }
+            popupContent += "</table>";
+
+            layer.bindPopup(popupContent);
+          }
+
+        }).addTo(map);
+      });
+
+  </script>
+</body>
+</html>
